@@ -25,19 +25,7 @@ namespace ZadanieRekrutacyjne.Controllers
             _logger = logger;
         }
 
-        [HttpGet("list")]
-        ///<summary>
-        ///Returns a list of downloaded tags
-        ///</summary>
-        ///<returns> A list of tags</returns>
-        ///<remarks>
-        ///
-        /// Sample request
-        /// select page number in currentPage
-        /// sort by name or percentage
-        /// order asc (ascending) or desc (descending)
-        /// 
-        /// </remarks>
+        [HttpGet("list")]   
         public async Task<IActionResult> GetTags(int currentPage = 1, string sortBy = "name", string sortOrder = "asc")
         {
             var tagsQuery = _tagContext.Tags.AsQueryable();
@@ -74,17 +62,7 @@ namespace ZadanieRekrutacyjne.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        ///<summary>
-        ///Returns a tag by Id
-        ///</summary>
-        ///<returns> single tag based on Id</returns>
-        ///<remarks>
-        ///
-        /// Sample request
-        /// enter Id number       
-        /// 
-        /// </remarks>
+        [HttpGet("{id}")]       
         public async Task<ActionResult<Tag>> GetTags(int id)
         {
             if (_tagContext == null)
@@ -101,17 +79,7 @@ namespace ZadanieRekrutacyjne.Controllers
 
         }
 
-        [HttpPost("fetch")]
-        ///<summary>
-        ///Fetch tags from stackexchange API
-        ///</summary>
-        ///<returns> returns a JSON list of tags </returns>
-        ///<remarks>
-        ///
-        /// Sample request
-        /// enter desired number of tags (multiple of 100)
-        /// 
-        /// </remarks>
+        [HttpPost("fetch")]    
         public async Task<IActionResult> FetchTags(int totalTags)
         {
             int currentPage = 1;
