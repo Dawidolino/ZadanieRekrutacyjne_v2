@@ -79,10 +79,11 @@ namespace ZadanieRekrutacyjne.Controllers
         }
 
         [HttpPost("fetch")]
-        public async Task<IActionResult> FetchTags(int totalTags, int currentPage = 1)
+        public async Task<IActionResult> FetchTags(int totalTags)
         {
+            int currentPage = 1;
             var allTags = new List<Tag>();
-            
+
             //Loop to jump to the next page starting from page 1
             while (allTags.Count < totalTags)
             {
@@ -104,7 +105,8 @@ namespace ZadanieRekrutacyjne.Controllers
             await SaveTagsToDatabase(allTags);
 
             return Ok(allTags);
-        }
+        }        
+        //fetch tags and decompress them from gzip
         private async Task<List<Tag>> GetTagsFromApi(int currentPage)
         {
             var apiKey = _tagApiConfiguration.ApiKey;
@@ -155,14 +157,14 @@ namespace ZadanieRekrutacyjne.Controllers
             //    }
 
         }
+        
         private async Task SaveTagsToDatabase(List<Tag> tags)
         {
-     
             foreach (var tag in tags)
             {
                 if (!_tagContext.Tags.Any(t => t.Name == tag.Name)) // Check for existing tag
                 {
-                    //tag.Percentage = (double)tag.Count / totalCount * 100;
+                   
                     _tagContext.Tags.Add(tag);
                 }
             }
