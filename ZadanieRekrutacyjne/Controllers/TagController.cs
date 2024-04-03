@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.IO.Compression;
 using System.Net.Http.Headers;
-using System.Text;
 using ZadanieRekrutacyjne.Model;
 using ZadanieRekrutacyjne.Services;
-
+using Swashbuckle.AspNetCore;
 namespace ZadanieRekrutacyjne.Controllers
 {
     [Route("api/tags")]
@@ -29,11 +26,23 @@ namespace ZadanieRekrutacyjne.Controllers
         }
 
         [HttpGet("list")]
+        ///<summary>
+        ///Returns a list of downloaded tags
+        ///</summary>
+        ///<returns> A list of tags</returns>
+        ///<remarks>
+        ///
+        /// Sample request
+        /// select page number in currentPage
+        /// sort by name or percentage
+        /// order asc (ascending) or desc (descending)
+        /// 
+        /// </remarks>
         public async Task<IActionResult> GetTags(int currentPage = 1, string sortBy = "name", string sortOrder = "asc")
         {
             var tagsQuery = _tagContext.Tags.AsQueryable();
 
-            // Sortowanie
+            // sorting
             if (sortBy.ToLower() == "name")
             {
                 tagsQuery = sortOrder.ToLower() == "asc" ? tagsQuery.OrderBy(tag => tag.Name) : tagsQuery.OrderByDescending(tag => tag.Name);
@@ -42,9 +51,8 @@ namespace ZadanieRekrutacyjne.Controllers
             {
                 tagsQuery = sortOrder.ToLower() == "asc" ? tagsQuery.OrderBy(tag => tag.Percentage) : tagsQuery.OrderByDescending(tag => tag.Percentage);
             }
-            // Jeśli potrzebujesz innych kryteriów sortowania, dodaj tutaj odpowiednie warunki
-
-            // Paginacja
+            
+            // Pagination
             var pageSize = 100; //set to 100 
             var totalRecords = await tagsQuery.CountAsync();
             var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
@@ -61,11 +69,22 @@ namespace ZadanieRekrutacyjne.Controllers
                 Tags = tags
             };
 
+            _logger.LogInformation("Tags retrieved successfully. Total records: {TotalRecords}", totalRecords);
             return Ok(response);
         }
 
 
         [HttpGet("{id}")]
+        ///<summary>
+        ///Returns a tag by Id
+        ///</summary>
+        ///<returns> single tag based on Id</returns>
+        ///<remarks>
+        ///
+        /// Sample request
+        /// enter Id number       
+        /// 
+        /// </remarks>
         public async Task<ActionResult<Tag>> GetTags(int id)
         {
             if (_tagContext == null)
@@ -73,12 +92,26 @@ namespace ZadanieRekrutacyjne.Controllers
                 return NotFound();
             }
             var tags = await _tagContext.Tags.FindAsync(id);
-            if (tags == null) { return NotFound(); }
+            if (tags == null) 
+            {
+                _logger.LogWarning("Tag with ID {id} not found", id);
+                return NotFound();
+            }
             return Ok(tags);
 
         }
 
         [HttpPost("fetch")]
+        ///<summary>
+        ///Fetch tags from stackexchange API
+        ///</summary>
+        ///<returns> returns a JSON list of tags </returns>
+        ///<remarks>
+        ///
+        /// Sample request
+        /// enter desired number of tags (multiple of 100)
+        /// 
+        /// </remarks>
         public async Task<IActionResult> FetchTags(int totalTags)
         {
             int currentPage = 1;
@@ -103,6 +136,8 @@ namespace ZadanieRekrutacyjne.Controllers
             var totalCount = allTags.Sum(tag => tag.Count);
 
             await SaveTagsToDatabase(allTags);
+
+            _logger.LogInformation("Fetched {FetchedTagsCount} tags from external API. Total tags saved: {SavedTagsCount}", allTags.Count, totalCount);
 
             return Ok(allTags);
         }        
@@ -164,11 +199,13 @@ namespace ZadanieRekrutacyjne.Controllers
             {
                 if (!_tagContext.Tags.Any(t => t.Name == tag.Name)) // Check for existing tag
                 {
-                   
+                    //tag.Percentage = (double)tag.Count / totalCount * 100;
                     _tagContext.Tags.Add(tag);
                 }
             }
+            await _tagContext.SaveChangesAsync();
             // calculate percentages for all tags
+            _tagContext.ChangeTracker.Clear();
             var allTags = await _tagContext.Tags.ToListAsync();
             var totalCount = allTags.Sum(tag => tag.Count);
 
