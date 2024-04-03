@@ -11,7 +11,7 @@ using ZadanieRekrutacyjne.Services;
 
 namespace ZadanieRekrutacyjne.Controllers
 {
-    [Route("api/gettags")]
+    [Route("api/tags")]
     [ApiController]
     public class TagController : Controller
     {
@@ -28,12 +28,61 @@ namespace ZadanieRekrutacyjne.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetTags(int totalTags, int currentPage = 1   )
+        [HttpGet("list")]
+        public async Task<IActionResult> GetTags(int currentPage = 1, string sortBy = "name", string sortOrder = "asc")
+        {
+            var tagsQuery = _tagContext.Tags.AsQueryable();
+
+            // Sortowanie
+            if (sortBy.ToLower() == "name")
+            {
+                tagsQuery = sortOrder.ToLower() == "asc" ? tagsQuery.OrderBy(tag => tag.Name) : tagsQuery.OrderByDescending(tag => tag.Name);
+            }
+            else if (sortBy.ToLower() == "percentage")
+            {
+                tagsQuery = sortOrder.ToLower() == "asc" ? tagsQuery.OrderBy(tag => tag.Percentage) : tagsQuery.OrderByDescending(tag => tag.Percentage);
+            }
+            // Jeśli potrzebujesz innych kryteriów sortowania, dodaj tutaj odpowiednie warunki
+
+            // Paginacja
+            var pageSize = 100; //set to 100 
+            var totalRecords = await tagsQuery.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            var tags = await tagsQuery.Skip((currentPage - 1) * pageSize)
+                                       .Take(pageSize)
+                                       .ToListAsync();
+
+            var response = new
+            {
+                TotalRecords = totalRecords,
+                TotalPages = totalPages,
+                CurrentPage = currentPage,
+                Tags = tags
+            };
+
+            return Ok(response);
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tag>> GetTags(int id)
+        {
+            if (_tagContext == null)
+            {
+                return NotFound();
+            }
+            var tags = await _tagContext.Tags.FindAsync(id);
+            if (tags == null) { return NotFound(); }
+            return Ok(tags);
+
+        }
+
+        [HttpPost("fetch")]
+        public async Task<IActionResult> FetchTags(int totalTags, int currentPage = 1)
         {
             var allTags = new List<Tag>();
-            //var totalFetchedCount = 0;
-
+            
             //Loop to jump to the next page starting from page 1
             while (allTags.Count < totalTags)
             {
@@ -55,19 +104,6 @@ namespace ZadanieRekrutacyjne.Controllers
             await SaveTagsToDatabase(allTags);
 
             return Ok(allTags);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Tag>> GetTags(int id)
-        {
-            if (_tagContext == null)
-            {
-                return NotFound();
-            }
-            var tags = await _tagContext.Tags.FindAsync(id);
-            if (tags == null) { return NotFound(); }
-            return Ok(tags);
-
         }
         private async Task<List<Tag>> GetTagsFromApi(int currentPage)
         {
