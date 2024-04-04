@@ -7,8 +7,8 @@ services:
       - ASPNETCORE_ENVIRONMENT= Development
       - ASPNETCORE_HTTP_PORTS=5049
       - ASPNETCORE_HTTPS_PORTS=7182
-      - ASPNETCORE_Kester__Certificates__Default__Password=123
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/tags.pfx
+      # - ASPNETCORE_Kester__Certificates__Default__Password=123
+      # - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/tags.pfx
     container_name: zadanierekrutacyjne
     image: zadanierekrutacyjne
     build:
@@ -17,8 +17,9 @@ services:
     ports:
       - "5049:5049"  
       - "7182:7182"  
-    volumes:
-    - ~/.ZadanieRekrutacyjne/https:/https:ro
+    # volumes:
+    # - ~/.ZadanieRekrutacyjne/https:/https:ro
+    # -  ~/.ZadanieRekrutacyjne/https:/https
    
     # ConnectionStrings__DefaultConnection: "Server=host.docker.internal;Database=TagDB;User=sa;Password=Haslo1234;Trusted_Connection=False;MultipleActiveResultSets=true;TrustServerCertificate=True;"
     depends_on:
