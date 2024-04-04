@@ -28,9 +28,17 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    using var serviceScope = app.Services.CreateScope();
+    using var dbContext = serviceScope.ServiceProvider.GetService<TagContext>();
+    dbContext?.Database.Migrate();
 }
 
-app.UseHttpsRedirection();
+//if (!app.Environment.IsDevelopment())
+//{
+// }
+   app.UseHttpsRedirection();
+
 
 app.UseAuthorization();
 
