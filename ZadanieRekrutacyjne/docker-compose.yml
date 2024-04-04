@@ -1,0 +1,11 @@
+﻿version: "3.9"
+
+services:
+  app:
+    build: .
+    ports:
+      - "5049:8080"
+      - "7182:8081"
+    volumes:
+      - .:/app
+    entrypoint: ["dotnet", "ZadanieRekrutacyjne.dll"]
