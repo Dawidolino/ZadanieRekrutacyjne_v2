@@ -30,7 +30,56 @@ namespace ZadanieRekrutacyjne.IntegrationTests
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         }
+        [Fact]
+        public async Task GetList_SortByPercentageAsc_ReturnsOkResult()
+        {
+            //arange
+
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
 
 
+
+            //act
+
+            var response = await client.GetAsync("/api/tags/list?currentPage=1&sortBy=percentage&sortOrder=asc");
+
+
+            //assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        }
+
+        [Fact]
+        public async Task GetList_SortByNameDesc_ReturnsOkResult()
+        {
+            //arange
+
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
+
+
+
+            //act
+
+            var response = await client.GetAsync("/api/tags/list?currentPage=1&sortBy=name&sortOrder=desc");
+
+
+            //assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+
+        }
+        [Fact]
+        public async Task GetItem_ById_ReturnsOkResult()
+        {
+            //arange
+            var factory = new WebApplicationFactory<Program>();
+            var client = factory.CreateClient();
+            //act
+            var response = await client.GetAsync("/api/tags/1");
+            //asset
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK); 
+
+        }
     }
 }
