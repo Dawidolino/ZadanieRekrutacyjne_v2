@@ -11,64 +11,28 @@ namespace ZadanieRekrutacyjne.IntegrationTests
  
     public class TagsControllerTests
     {
-        [Fact]
-        public async Task GetList_WithQueryParameteres_ReturnsOkResult()
+        [Theory]
+        [InlineData("currentPage=1&sortBy=name&sortOrder=asc")]
+        [InlineData("currentPage=1&sortBy=percentage&sortOrder=asc")]
+        [InlineData("currentPage=1&sortBy=name&sortOrder=desc")]
+        [InlineData("currentPage=3&sortBy=percentage&sortOrder=desc")]
+
+        public async Task GetList_WithQueryParameteres_ReturnsOkResult(string QueryParams)
         {
             //arange
 
             var factory = new WebApplicationFactory<Program>();
             var client = factory.CreateClient();
 
-
-
             //act
 
-            var response = await client.GetAsync("/api/tags/list?currentPage=1&sortBy=name&sortOrder=asc");
-
+            var response = await client.GetAsync("/api/tags/list?"+ QueryParams);
 
             //assert
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
         }
-        [Fact]
-        public async Task GetList_SortByPercentageAsc_ReturnsOkResult()
-        {
-            //arange
-
-            var factory = new WebApplicationFactory<Program>();
-            var client = factory.CreateClient();
-
-
-
-            //act
-
-            var response = await client.GetAsync("/api/tags/list?currentPage=1&sortBy=percentage&sortOrder=asc");
-
-
-            //assert
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-        }
-
-        [Fact]
-        public async Task GetList_SortByNameDesc_ReturnsOkResult()
-        {
-            //arange
-
-            var factory = new WebApplicationFactory<Program>();
-            var client = factory.CreateClient();
-
-
-
-            //act
-
-            var response = await client.GetAsync("/api/tags/list?currentPage=1&sortBy=name&sortOrder=desc");
-
-
-            //assert
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-        }
+              
         [Fact]
         public async Task GetItem_ById_ReturnsOkResult()
         {
