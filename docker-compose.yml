@@ -1,11 +1,30 @@
-﻿version: "3.9"
+﻿version: '3.9'
 
 services:
-  app:
-    build: .
+  web:
+    image: zadanierekrutacyjne:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile/
     ports:
-      - "5049:8080"
-      - "7182:8081"
-    volumes:
-      - .:/app
-    entrypoint: ["dotnet", "ZadanieRekrutacyjne.dll"]
+      - "5049:5049"  
+      - "7182:7182"  
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=db;Database=TagDB;Integrated Security=True;MultipleActiveResultSets=true;TrustServerCertificate=True;"
+    networks:
+      - default
+
+  db:
+    image: mcr.microsoft.com/mssql/server:latest
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - default
+
+networks:
+  default:
