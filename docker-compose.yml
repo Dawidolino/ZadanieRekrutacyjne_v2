@@ -2,15 +2,15 @@
 version: '3.9'
 
 services:
-  zadanierekrutacyjne.api:
+  zadanierekrutacyjne:
     environment:
       - ASPNETCORE_ENVIRONMENT= Development
       - ASPNETCORE_HTTP_PORTS=5049
       - ASPNETCORE_HTTPS_PORTS=7182
       - ASPNETCORE_Kester__Certificates__Default__Password=123
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/tags.pfx
-    container_name: zadanierekrutacyjne.api
-    image: zadanierekrutacyjne.api
+    container_name: zadanierekrutacyjne
+    image: zadanierekrutacyjne
     build:
       context: .
       dockerfile: ZadanieRekrutacyjne/Dockerfile
