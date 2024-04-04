@@ -167,7 +167,7 @@ namespace ZadanieRekrutacyjne.Controllers
             {
                 if (!_tagContext.Tags.Any(t => t.Name == tag.Name)) // Check for existing tag
                 {
-                    //tag.Percentage = (double)tag.Count / totalCount * 100;
+                  
                     _tagContext.Tags.Add(tag);
                 }
             }
